@@ -21,12 +21,6 @@ export default class Course extends BaseModel {
   @column()
   declare description: string
 
-  @column()
-  declare thumbnail: string | null
-
-  @column()
-  declare isPublished: boolean
-
   @belongsTo(() => Instructor)
   declare instructor: BelongsTo<typeof Instructor>
 

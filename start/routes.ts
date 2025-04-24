@@ -8,15 +8,11 @@
 */
 
 import router from '@adonisjs/core/services/router'
+import { middleware } from '#start/kernel'
 
-router.get('/', async () => {
-  return {
-    hello: 'world',
-  }
+router.get('/', () => {
+  return { hello: 'world' }
 })
 
-router.get('/bambang/:id', ({ params }) => {
-  return {
-    message: params.id
-  }
-})
+router.resource('users', '#controllers/users_controller').apiOnly()
+router.resource('courses', '#controllers/courses_controller').apiOnly()

@@ -46,10 +46,10 @@ Ref: courses.instructor_id > instructors.id
 
 Table chapters {
   id serial [pk]
-  courses_id integer
+  course_id integer
   title varchar
 }
-Ref: chapters.courses_id > courses.id
+Ref: chapters.course_id > courses.id
 
 Table topics {
   id serial [pk]
