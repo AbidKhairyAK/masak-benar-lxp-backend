@@ -6,12 +6,15 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('user_id').unsigned().notNullable().references('id').inTable('users').onDelete('CASCADE')
-      table.integer('course_id').unsigned().notNullable().references('id').inTable('courses').onDelete('CASCADE')
+      table.integer('user_id').unsigned().notNullable().references('id').inTable('users').onDelete('RESTRICT')
+      table.integer('course_id').unsigned().notNullable().references('id').inTable('courses').onDelete('RESTRICT')
       table.boolean('is_completed').notNullable().defaultTo(false)
       table.integer('completion_percentage').notNullable().defaultTo(0)
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table.string('created_by').nullable()
+      table.string('updated_by').nullable()
+      table.timestamp('created_at').nullable()
+      table.timestamp('updated_at').nullable()
+      table.timestamp('deleted_at').nullable()
     })
   }
 

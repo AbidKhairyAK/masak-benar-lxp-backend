@@ -1,145 +1,250 @@
-// db erd for lxp app
-// created using dbml
-// docs : https://dbml.dbdiagram.io/docs/
-
 Table users {
-  id serial [pk]
-  email varchar [unique]
-  password varchar
+  id integer pk
   name varchar
+  email varchar
+  password varchar
+  deleted_at datetime
+  created_at datetime
+  updated_at datetime
 }
-
 Table students {
-  id serial [pk]
+  id integer pk
   user_id integer
-  some_info varchar
+  phonenumber varchar
+  occupation varchar
+  gender varchar
+  address TEXT
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
 }
-Ref: students.user_id > users.id
-
+Table instructors {
+  id integer pk
+  user_id integer
+  phonenumber varchar
+  occupation varchar
+  gender varchar
+  address TEXT
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+}
+Table courses {
+  id integer pk
+  instructor_id integer
+  title varchar
+  caption TEXT
+  description TEXT
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+}
 Table course_enrollments {
-  id serial [pk]
+  id integer pk
   user_id integer
   course_id integer
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
   is_completed boolean
   completion_percentage integer
 }
-Ref: course_enrollments.course_id > courses.id
-Ref: course_enrollments.user_id > users.id
-
-
-Table instructors {
-  id serial [pk]
-  user_id integer
-  some_info varchar
-}
-Ref: instructors.user_id > users.id
-
-
-Table courses {
-  id serial [pk]
-  instructor_id integer
-  title varchar
-  caption text
-  description text
-}
-Ref: courses.instructor_id > instructors.id
-
 Table chapters {
-  id serial [pk]
+  id integer pk
   course_id integer
   title varchar
+  sort_order integer
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
 }
-Ref: chapters.course_id > courses.id
-
 Table topics {
-  id serial [pk]
+  id integer pk
   chapter_id integer
   title varchar
   sort_order integer
   type topic_type
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
 }
-Ref: topics.chapter_id > chapters.id
-
+Table lessons {
+  id integer pk
+  topic_id integer
+  type lesson_type
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+}
+Table lesson_videos {
+  id integer pk
+  lesson_id integer
+  video_url varchar
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+}
+Table lesson_pdfs {
+  id integer pk
+  lesson_id integer
+  pdf_url varchar
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+}
+Table lesson_articles {
+  id integer pk
+  lesson_id integer
+  content TEXT
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+}
+Table practices {
+  id integer pk
+  topic_id integer
+  type practice_type
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+}
+Table practice_single_choice_user_results {
+  id integer pk
+  user_id integer
+  practice_id integer
+  correct_questions integer
+  total_questions integer
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+Table practice_single_choice_options {
+  id integer pk
+  question_id integer
+  description TEXT
+  is_correct boolean
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+Table practice_single_choice_user_answers {
+  id integer pk
+  user_id integer
+  question_id integer
+  selected_option_id integer
+  is_correct boolean
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+Table practice_single_choice_questions {
+  id integer pk
+  practice_id integer
+  question TEXT
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+Table topic_user_histories {
+  id integer pk
+  topic_id integer
+  user_id integer
+  created_at datetime
+  updated_at datetime
+}
+Table access_codes {
+  id integer pk
+  course_id integer
+  title varchar
+  code varchar
+  quota_used integer
+  quota_total integer
+  expiry_date date
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime
+}
+Table certificates {
+  id integer pk
+  user_id integer
+  course_id integer
+  certificate_number varchar
+  issued_date date
+  download_url varchar
+  deleted_at datetime
+  created_by varchar
+  updated_by varchar
+  created_at datetime
+  updated_at datetime
+  is_approved boolean
+}
 Enum topic_type {
   lesson
   practice
 }
-
-Table lessons {
-  id serial [pk]
-  topic_id integer
-  title varchar
-  type lesson_type
-}
-Ref: lessons.topic_id > topics.id
-
-enum lesson_type {
+Enum lesson_type {
   video
   pdf
   article
 }
-
-Table lesson_videos {
-  id serial [pk]
-  lesson_id integer
-  video_url varchar
-}
-Ref: lesson_videos.lesson_id > lessons.id
-
-Table lesson_pdfs {
-  id serial [pk]
-  lesson_id integer
-  pdf_url varchar
-}
-Ref: lesson_pdfs.lesson_id > lessons.id
-
-Table lesson_articles {
-  id serial [pk]
-  lesson_id integer
-  content text
-}
-Ref: lesson_articles.lesson_id > lessons.id
-
-Table practices {
-  id serial [pk]
-  topic_id integer
-  title varchar
-  type practice_type
-}
-Ref: practices.topic_id > topics.id
-
 Enum practice_type {
   single_choice
   code_challenge
   open_question
 }
-
-Table practice_single_choice_questions {
-  id serial [pk]
-  practice_id integer [ref: > practices.id]
-  question text
-  image_url varchar
-}
-
-Table practice_single_choice_options {
-  id serial [pk]
-  question_id integer [ref: > practice_single_choice_questions.id]
-  description text
-  is_correct boolean
-}
-
-Table practice_single_choice_user_answers {
-  is serial [pk]
-  user_id integer [ref: > users.id]
-  question_id integer [ref: > practice_single_choice_questions.id]
-  selected_option_id integer [ref: > practice_single_choice_options.id]
-  is_correct boolean
-}
-
-Table practice_single_choice_user_result {
-  id serial [pk]
-  user_id integer [ref: > users.id]
-  practice_id integer [ref: > practices.id]
-  correct_questions integer
-  total_questions integer
-}
+Ref: students.user_id > users.id
+Ref: instructors.user_id > users.id
+Ref: courses.instructor_id > instructors.id
+Ref: course_enrollments.course_id > courses.id
+Ref: course_enrollments.user_id > users.id
+Ref: chapters.course_id > courses.id
+Ref: topics.chapter_id > chapters.id
+Ref: lessons.topic_id > topics.id
+Ref: lesson_videos.lesson_id > lessons.id
+Ref: lesson_pdfs.lesson_id > lessons.id
+Ref: lesson_articles.lesson_id > lessons.id
+Ref: practices.topic_id > topics.id
+Ref: practice_single_choice_user_results.practice_id > practices.id
+Ref: practice_single_choice_user_results.user_id > users.id
+Ref: practice_single_choice_options.question_id > practice_single_choice_questions.id
+Ref: practice_single_choice_user_answers.selected_option_id > practice_single_choice_options.id
+Ref: practice_single_choice_user_answers.question_id > practice_single_choice_questions.id
+Ref: practice_single_choice_user_answers.user_id > users.id
+Ref: practice_single_choice_questions.practice_id > practices.id
+Ref: topic_user_histories.user_id > users.id
+Ref: topic_user_histories.topic_id > topics.id
+Ref: access_codes.course_id > courses.id
+Ref: certificates.course_id > courses.id
+Ref: certificates.user_id > users.id

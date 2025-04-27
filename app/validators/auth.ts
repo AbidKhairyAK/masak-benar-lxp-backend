@@ -1,3 +1,4 @@
+import User from '#models/user'
 import vine from '@vinejs/vine'
 
 /**
@@ -5,9 +6,14 @@ import vine from '@vinejs/vine'
  */
 export const registerValidator = vine.compile(
   vine.object({
-    email: vine.string().email().trim(),
+    email: vine.string().email().trim().unique(async (_, value) => {
+      const user = await User.query()
+        .where('email', value)
+        .first()
+      return !user
+    }),
     password: vine.string().minLength(8),
-    fullName: vine.string().trim().optional(),
+    name: vine.string().trim(),
   })
 )
 

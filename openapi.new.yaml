@@ -26,7 +26,7 @@ components:
           type: string
           format: email
           example: "user@example.com"
-        fullName:
+        name:
           type: string
           example: "John Doe"
         createdAt:
@@ -103,6 +103,28 @@ components:
           type: string
           format: date-time
 
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        courseId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Chapter 1"
+        sortOrder:
+          type: integer
+          example: 1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     PaginatedResponse:
       type: object
       properties:
@@ -137,7 +159,7 @@ components:
             previous_page_url:
               type: string
               nullable: true
-            
+
 paths:
   /users:
     get:
@@ -188,7 +210,7 @@ paths:
                 password:
                   type: string
                   minLength: 8
-                fullName:
+                name:
                   type: string
       responses:
         200:
@@ -231,7 +253,7 @@ paths:
                 email:
                   type: string
                   format: email
-                fullName:
+                name:
                   type: string
       responses:
         200:
@@ -384,8 +406,6 @@ paths:
   /courses/{id}/structure:
     get:
       summary: Get course structure with chapters and topics
-      tags:
-        - Courses
       parameters:
         - in: path
           name: id
@@ -458,8 +478,6 @@ paths:
   /auth/register:
     post:
       summary: Register a new user
-      tags:
-        - Authentication
       requestBody:
         required: true
         content:
@@ -478,7 +496,7 @@ paths:
                   type: string
                   minLength: 8
                   example: "password123"
-                fullName:
+                name:
                   type: string
                   example: "John Doe"
       responses:
@@ -498,8 +516,6 @@ paths:
   /auth/login:
     post:
       summary: Login user
-      tags:
-        - Authentication
       requestBody:
         required: true
         content:
@@ -534,8 +550,6 @@ paths:
   /auth/me:
     get:
       summary: Get authenticated user profile
-      tags:
-        - Authentication
       security:
         - bearerAuth: []
       responses:
@@ -555,8 +569,6 @@ paths:
   /auth/logout:
     post:
       summary: Logout user
-      tags:
-        - Authentication
       security:
         - bearerAuth: []
       responses:
@@ -575,4 +587,4 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse' 
+                $ref: '#/components/schemas/ErrorResponse'

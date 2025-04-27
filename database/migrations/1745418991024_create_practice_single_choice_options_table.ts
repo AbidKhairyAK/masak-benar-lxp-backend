@@ -6,11 +6,14 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('question_id').unsigned().notNullable().references('id').inTable('practice_single_choice_questions').onDelete('CASCADE')
+      table.integer('question_id').unsigned().notNullable().references('id').inTable('practice_single_choice_questions').onDelete('RESTRICT')
       table.text('description').notNullable()
       table.boolean('is_correct').notNullable()
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table.string('created_by').nullable()
+      table.string('updated_by').nullable()
+      table.timestamp('created_at').nullable()
+      table.timestamp('updated_at').nullable()
+      table.timestamp('deleted_at').nullable()
     })
   }
 

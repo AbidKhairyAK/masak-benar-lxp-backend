@@ -6,41 +6,33 @@ export default class AuthController {
   /**
    * Register a new user
    */
-  async register({ request, response }: HttpContext) {
+  async register({ request }: HttpContext) {
     const data = await request.validateUsing(registerValidator)
     const user = await User.create(data)
     const token = await User.accessTokens.create(user)
 
-    return response.created({
-      user: user.serialize(),
-      token: token.value,
-      type: 'bearer'
-    })
+    return { token, user }
   }
 
   /**
    * Login user and generate token
    */
-  async login({ request, response }: HttpContext) {
+  async login({ request }: HttpContext) {
     const { email, password } = await request.validateUsing(loginValidator)
     
     // This will throw if credentials are invalid
     const user = await User.verifyCredentials(email, password)
     const token = await User.accessTokens.create(user)
 
-    return response.ok({
-      user: user.serialize(),
-      token: token.value,
-      type: 'bearer'
-    })
+    return { token, user }
   }
 
   /**
    * Get authenticated user profile
    */
-  async me({ auth, response }: HttpContext) {
-    const user = auth.user!
-    return response.ok(user.serialize())
+  async me({ auth }: HttpContext) {
+    const user = auth.user
+    return user
   }
 
   /**

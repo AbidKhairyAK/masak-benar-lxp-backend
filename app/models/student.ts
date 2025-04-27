@@ -12,7 +12,16 @@ export default class Student extends BaseModel {
   declare userId: number
 
   @column()
-  declare someInfo: string | null
+  declare phonenumber: string | null
+
+  @column()
+  declare occupation: string | null
+
+  @column()
+  declare gender: string | null
+
+  @column()
+  declare address: string | null
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>

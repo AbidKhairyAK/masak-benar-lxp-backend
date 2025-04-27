@@ -16,9 +16,6 @@ export default class Topic extends BaseModel {
   declare title: string
 
   @column()
-  declare content: string
-
-  @column()
   declare sortOrder: number
 
   @column()

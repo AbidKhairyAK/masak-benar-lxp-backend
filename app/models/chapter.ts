@@ -15,9 +15,6 @@ export default class Chapter extends BaseModel {
   declare title: string
 
   @column()
-  declare description: string | null
-
-  @column()
   declare sortOrder: number
 
   @belongsTo(() => Course)

@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
-import type { HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import PracticeSingleChoiceOption from '#models/practice_single_choice_option'
 import PracticeSingleChoiceUserAnswer from '#models/practice_single_choice_user_answer'
+import Practice from '#models/practice'
 
 export default class PracticeSingleChoiceQuestion extends BaseModel {
   @column({ isPrimary: true })
@@ -14,13 +15,17 @@ export default class PracticeSingleChoiceQuestion extends BaseModel {
   @column()
   declare question: string
 
-  @column()
-  declare imageUrl: string | null
+  @belongsTo(() => Practice)
+  declare practice: BelongsTo<typeof Practice>
 
-  @hasMany(() => PracticeSingleChoiceOption)
+  @hasMany(() => PracticeSingleChoiceOption, {
+    foreignKey: 'questionId'
+  })
   declare options: HasMany<typeof PracticeSingleChoiceOption>
 
-  @hasMany(() => PracticeSingleChoiceUserAnswer)
+  @hasMany(() => PracticeSingleChoiceUserAnswer, {
+    foreignKey: 'questionId'
+  })
   declare userAnswers: HasMany<typeof PracticeSingleChoiceUserAnswer>
 
   @column.dateTime({ autoCreate: true })

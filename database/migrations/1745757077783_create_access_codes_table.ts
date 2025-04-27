@@ -1,15 +1,17 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
 
 export default class extends BaseSchema {
-  protected tableName = 'practice_single_choice_user_results'
+  protected tableName = 'access_codes'
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('user_id').unsigned().notNullable().references('id').inTable('users').onDelete('RESTRICT')
-      table.integer('practice_id').unsigned().notNullable().references('id').inTable('practices').onDelete('RESTRICT')
-      table.integer('correct_questions').notNullable()
-      table.integer('total_questions').notNullable()
+      table.integer('course_id').unsigned().references('courses.id').onDelete('RESTRICT')
+      table.string('title')
+      table.string('code')
+      table.integer('quota_used')
+      table.integer('quota_total')
+      table.date('expiry_date')
       table.string('created_by').nullable()
       table.string('updated_by').nullable()
       table.timestamp('created_at').nullable()
