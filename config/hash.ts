@@ -1,7 +1,8 @@
 import { defineConfig, drivers } from '@adonisjs/core/hash'
+import { LaravelHashDriver } from '../driver/LaravelHashDriver.js'
 
 const hashConfig = defineConfig({
-  default: 'scrypt',
+  default: 'laravel_hash',
 
   list: {
     scrypt: drivers.scrypt({
@@ -10,6 +11,12 @@ const hashConfig = defineConfig({
       parallelization: 1,
       maxMemory: 33554432,
     }),
+    bcrypt: drivers.bcrypt({
+      rounds: 10,
+      saltSize: 16,
+      version: 97
+    }),
+    laravel_hash: LaravelHashDriver({})
   },
 })
 
