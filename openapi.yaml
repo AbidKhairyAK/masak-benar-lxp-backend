@@ -292,11 +292,12 @@ components:
             type: object
 
 paths:
-  /users:
+  # === Admin User Endpoints ===
+  /admin/users:
     get:
       summary: List all users
       tags:
-        - Admin
+        - Admin - Users
       security:
         - bearerAuth: []
       parameters:
@@ -330,7 +331,7 @@ paths:
     post:
       summary: Create a new user
       tags:
-        - Admin
+        - Admin - Users
       security:
         - bearerAuth: []
       requestBody:
@@ -377,7 +378,7 @@ paths:
     get:
       summary: Get a user by ID
       tags:
-        - Admin
+        - Admin - Users
       security:
         - bearerAuth: []
       responses:
@@ -393,7 +394,7 @@ paths:
     put:
       summary: Update a user
       tags:
-        - Admin
+        - Admin - Users
       security:
         - bearerAuth: []
       requestBody:
@@ -427,7 +428,7 @@ paths:
     delete:
       summary: Delete a user
       tags:
-        - Admin
+        - Admin - Users
       security:
         - bearerAuth: []
       responses:
@@ -440,6 +441,166 @@ paths:
         404:
           description: User not found
 
+  # === Admin Course Endpoints ===
+  /admin/courses:
+    get:
+      summary: List all courses (admin)
+      tags:
+        - Admin - Courses
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+      responses:
+        200:
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Course'
+    
+    post:
+      summary: Create a new course
+      tags:
+        - Admin - Courses
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - instructorId
+                - title
+                - caption
+                - description
+              properties:
+                instructorId:
+                  type: integer
+                title:
+                  type: string
+                caption:
+                  type: string
+                description:
+                  type: string
+      responses:
+        200:
+          description: Created course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        422:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /admin/courses/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: Course ID
+    
+    get:
+      summary: Get a course by ID (admin)
+      tags:
+        - Admin - Courses
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Course found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        404:
+          description: Course not found
+    
+    put:
+      summary: Update a course
+      tags:
+        - Admin - Courses
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - instructorId
+                - title
+                - caption
+                - description
+              properties:
+                instructorId:
+                  type: integer
+                title:
+                  type: string
+                caption:
+                  type: string
+                description:
+                  type: string
+      responses:
+        200:
+          description: Updated course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        404:
+          description: Course not found
+        422:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    
+    delete:
+      summary: Delete a course
+      tags:
+        - Admin - Courses
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Deleted course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        404:
+          description: Course not found
+
+  # === Public Course Endpoints ===
   /courses:
     get:
       summary: List all courses
@@ -496,164 +657,6 @@ paths:
         404:
           description: Course not found
 
-  /admin/courses:
-    get:
-      summary: List all courses (admin)
-      tags:
-        - Admin
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            default: 1
-          description: Page number
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            default: 10
-          description: Items per page
-      responses:
-        200:
-          description: List of courses
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/PaginatedResponse'
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/Course'
-    
-    post:
-      summary: Create a new course
-      tags:
-        - Admin
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - instructorId
-                - title
-                - caption
-                - description
-              properties:
-                instructorId:
-                  type: integer
-                title:
-                  type: string
-                caption:
-                  type: string
-                description:
-                  type: string
-      responses:
-        200:
-          description: Created course
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-        422:
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /admin/courses/{id}:
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
-        description: Course ID
-    
-    get:
-      summary: Get a course by ID (admin)
-      tags:
-        - Admin
-      security:
-        - bearerAuth: []
-      responses:
-        200:
-          description: Course found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-        404:
-          description: Course not found
-    
-    put:
-      summary: Update a course
-      tags:
-        - Admin
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - instructorId
-                - title
-                - caption
-                - description
-              properties:
-                instructorId:
-                  type: integer
-                title:
-                  type: string
-                caption:
-                  type: string
-                description:
-                  type: string
-      responses:
-        200:
-          description: Updated course
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-        404:
-          description: Course not found
-        422:
-          description: Validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-    
-    delete:
-      summary: Delete a course
-      tags:
-        - Admin
-      security:
-        - bearerAuth: []
-      responses:
-        200:
-          description: Deleted course
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-        404:
-          description: Course not found
-
   /courses/{id}/structure:
     get:
       summary: Get course structure with chapters and topics
@@ -678,6 +681,7 @@ paths:
         404:
           description: Course not found
 
+  # === Topic Endpoints ===
   /topics/{id}/navigation:
     get:
       summary: Get navigation information for a topic
@@ -750,6 +754,7 @@ paths:
         404:
           description: Question not found
 
+  # === Authentication Endpoints ===
   /auth/register:
     post:
       summary: Register a new user
