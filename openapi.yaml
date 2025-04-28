@@ -26,7 +26,7 @@ components:
           type: string
           format: email
           example: "user@example.com"
-        fullName:
+        name:
           type: string
           example: "John Doe"
         createdAt:
@@ -39,14 +39,17 @@ components:
     AuthResponse:
       type: object
       properties:
+        token:
+          type: object
+          properties:
+            type:
+              type: string
+              example: "bearer"
+            value:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
         user:
           $ref: '#/components/schemas/User'
-        token:
-          type: string
-          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        type:
-          type: string
-          example: "bearer"
 
     ErrorResponse:
       type: object
@@ -87,6 +90,30 @@ components:
           type: string
           format: date-time
 
+    CourseList:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        instructorId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Introduction to Programming"
+        instructor:
+          $ref: '#/components/schemas/Instructor'
+        topic_count:
+          type: integer
+          example: 15
+        lesson_count:
+          type: integer
+          example: 10
+        practice_count:
+          type: integer
+          example: 5
+
     Instructor:
       type: object
       properties:
@@ -96,12 +123,134 @@ components:
         userId:
           type: integer
           example: 1
+        user:
+          $ref: '#/components/schemas/User'
         createdAt:
           type: string
           format: date-time
         updatedAt:
           type: string
           format: date-time
+
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        courseId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Chapter 1: Introduction"
+        sortOrder:
+          type: integer
+          example: 1
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    Topic:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        chapterId:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Getting Started"
+        sortOrder:
+          type: integer
+          example: 1
+        type:
+          type: string
+          enum: ["lesson", "practice"]
+          example: "lesson"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    TopicNavigation:
+      type: object
+      properties:
+        prev_topic_id:
+          type: integer
+          example: 1
+        next_topic_id:
+          type: integer
+          example: 3
+
+    PracticeSingleChoiceQuestion:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        practiceId:
+          type: integer
+          example: 1
+        question:
+          type: string
+          example: "What is the correct way to declare a variable in JavaScript?"
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/PracticeSingleChoiceOption'
+        userAnswers:
+          type: array
+          items:
+            $ref: '#/components/schemas/PracticeSingleChoiceUserAnswer'
+
+    PracticeSingleChoiceOption:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        questionId:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: "var x = 5;"
+
+    PracticeSingleChoiceUserAnswer:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        userId:
+          type: integer
+          example: 1
+        questionId:
+          type: integer
+          example: 1
+
+    QuestionSummary:
+      type: object
+      properties:
+        question_id:
+          type: integer
+          example: 1
+        user_answer_id:
+          type: integer
+          nullable: true
+          example: 5
 
     PaginatedResponse:
       type: object
@@ -137,11 +286,19 @@ components:
             previous_page_url:
               type: string
               nullable: true
-            
+        data:
+          type: array
+          items:
+            type: object
+
 paths:
   /users:
     get:
       summary: List all users
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: page
@@ -172,6 +329,10 @@ paths:
     
     post:
       summary: Create a new user
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -197,8 +358,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+        422:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /users/{id}:
+  /admin/users/{id}:
     parameters:
       - in: path
         name: id
@@ -209,6 +376,10 @@ paths:
     
     get:
       summary: Get a user by ID
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: User found
@@ -221,6 +392,10 @@ paths:
     
     put:
       summary: Update a user
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -242,9 +417,19 @@ paths:
                 $ref: '#/components/schemas/User'
         404:
           description: User not found
+        422:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     
     delete:
       summary: Delete a user
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: Deleted user
@@ -258,6 +443,66 @@ paths:
   /courses:
     get:
       summary: List all courses
+      tags:
+        - Courses
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Page number
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+          description: Items per page
+      responses:
+        200:
+          description: List of courses
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CourseList'
+
+  /courses/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+        description: Course ID
+    
+    get:
+      summary: Get course details
+      tags:
+        - Courses
+      responses:
+        200:
+          description: Course found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        404:
+          description: Course not found
+
+  /admin/courses:
+    get:
+      summary: List all courses (admin)
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: page
@@ -288,6 +533,10 @@ paths:
     
     post:
       summary: Create a new course
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -315,8 +564,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        422:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
-  /courses/{id}:
+  /admin/courses/{id}:
     parameters:
       - in: path
         name: id
@@ -326,7 +581,11 @@ paths:
         description: Course ID
     
     get:
-      summary: Get a course by ID
+      summary: Get a course by ID (admin)
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: Course found
@@ -339,6 +598,10 @@ paths:
     
     put:
       summary: Update a course
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -368,9 +631,19 @@ paths:
                 $ref: '#/components/schemas/Course'
         404:
           description: Course not found
+        422:
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
     
     delete:
       summary: Delete a course
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
       responses:
         200:
           description: Deleted course
@@ -401,59 +674,81 @@ paths:
               schema:
                 type: array
                 items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                      example: 1
-                    course_id:
-                      type: integer
-                      example: 5
-                    title:
-                      type: string
-                      example: "Chapter 1 for Machine Learning with Python"
-                    description:
-                      type: string
-                      nullable: true
-                      example: "Introduction to the fundamentals"
-                    sort_order:
-                      type: integer
-                      example: 1
-                    created_at:
-                      type: string
-                      format: date-time
-                    updated_at:
-                      type: string
-                      format: date-time
-                    topics:
-                      type: array
-                      items:
-                        type: object
-                        properties:
-                          id:
-                            type: integer
-                            example: 9
-                          chapter_id:
-                            type: integer
-                            example: 1
-                          title:
-                            type: string
-                            example: "Topic in Chapter 1 for Machine Learning with Python"
-                          sort_order:
-                            type: integer
-                            example: 1
-                          type:
-                            type: string
-                            enum: ["lesson", "practice"]
-                            example: "practice"
-                          created_at:
-                            type: string
-                            format: date-time
-                          updated_at:
-                            type: string
-                            format: date-time
+                  $ref: '#/components/schemas/Chapter'
         404:
           description: Course not found
+
+  /topics/{id}/navigation:
+    get:
+      summary: Get navigation information for a topic
+      tags:
+        - Topics
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Topic ID
+      responses:
+        200:
+          description: Topic navigation retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TopicNavigation'
+        404:
+          description: Topic not found
+
+  /topics/{id}/single_choice/questions:
+    get:
+      summary: Get single choice questions for a topic
+      tags:
+        - Practice
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Topic ID
+      responses:
+        200:
+          description: Questions retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionSummary'
+        404:
+          description: Topic not found
+
+  /single_choice/questions/{id}:
+    get:
+      summary: Get details of a single choice question
+      tags:
+        - Practice
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Question ID
+      responses:
+        200:
+          description: Question details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeSingleChoiceQuestion'
+        404:
+          description: Question not found
 
   /auth/register:
     post:
@@ -469,6 +764,7 @@ paths:
               required:
                 - email
                 - password
+                - name
               properties:
                 email:
                   type: string
@@ -478,11 +774,11 @@ paths:
                   type: string
                   minLength: 8
                   example: "password123"
-                fullName:
+                name:
                   type: string
                   example: "John Doe"
       responses:
-        201:
+        200:
           description: User registered successfully
           content:
             application/json:
