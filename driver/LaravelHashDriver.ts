@@ -3,36 +3,24 @@ import {
   ManagerDriverFactory
 } from '@adonisjs/core/types/hash'
 
+/**
+ * need to polyfill the require function
+ */
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
-
 const bcrypt = require('bcrypt');
 
-const saltRounds = 12;
 
-/**
- * Config accepted by the hash driver
- */
-export type LaravelHashConfig = {
-}
+const previousAlgorithm = '$2y$12$' // bcrypt algorithm from the few characters on the start of the previously encrypted password
+const currentAlgorithm  = '$2b$12$' // this is for the current encrypted password
+const saltRounds        = 12        // match the salt rounds of the previous algorithm, it's on the second $ sign
 
-/**
- * Driver implementation
- */
-export class LaravelHash implements HashDriverContract {
-  constructor(public config: LaravelHashConfig) {
-  }
+
+export class LaravelHashDriver implements HashDriverContract {
 
   /**
-   * Check if the hash value is formatted as per
-   * the hashing algorithm.
-   */
-  isValidHash(value: string): boolean {
-    return bcrypt.compareSync(value, value);
-  }
-
-  /**
-   * Convert raw value to Hash
+   * Convert raw value to Hash, 
+   * used when creating new password for user
    */
   async make(value: string): Promise<string> {
     const _hashedValue = bcrypt.hashSync(value, saltRounds);
@@ -40,37 +28,35 @@ export class LaravelHash implements HashDriverContract {
   }
 
   /**
-   * Verify if the plain value matches the provided
-   * hash
+   * Verify if the plain value matches the provided hash, 
+   * used on login
    */
-  async verify(
-    hashedValue: string,
-    plainValue: string
-  ): Promise<boolean> {
-    let newHash: string;
-    if (hashedValue.includes('$2y$12$')) {
-        newHash = hashedValue.replace("$2y$12$", "$2b$12$");
-    } else {
-        newHash = hashedValue;
+  async verify( hashedValue: string, plainValue: string ): Promise<boolean> {
+    let currentHash = hashedValue;
+
+    if (hashedValue.includes(previousAlgorithm)) {
+        currentHash = hashedValue.replace(previousAlgorithm, currentAlgorithm);
     }
-    return await bcrypt.compareSync(plainValue, newHash);
+
+    return await bcrypt.compareSync(plainValue, currentHash);
   }
 
   /**
-   * Check if the hash needs to be re-hashed because
-   * the config parameters have changed
+   * idk the logic for this, so i just put it to default value
    */
   needsReHash(): boolean {
     return false;
   }
+  isValidHash(): boolean {
+    return true
+  }
 }
 
 /**
- * Factory function to reference the driver
- * inside the config file.
+ * Factory function so you dont need to intiate it before using it
  */
-export function LaravelHashDriver (config: LaravelHashConfig): ManagerDriverFactory {
+export function LaravelHashFunction (): ManagerDriverFactory {
   return () => {
-    return new LaravelHash(config)
+    return new LaravelHashDriver()
   }
 }
