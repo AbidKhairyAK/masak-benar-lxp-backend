@@ -19,7 +19,8 @@ router.get('/courses', '#controllers/app/courses_controller.index')
 router.get('/courses/:id', '#controllers/app/courses_controller.show')
 router.get('/courses/:id/structure', '#controllers/app/course_structures_controller.show')
 router.get('/topics/:id/navigation', '#controllers/app/topic_navigations_controller.show')
-router.get('/topics/:id/single_choice/questions', '#controllers/app/single_choice_questions_controller.index').use(middleware.auth())
+router.get('/topics/:id/content', '#controllers/app/topics_controller.show')
+router.get('/topics/:id/single_choice/questions', '#controllers/app/single_choice_questions_controller.index')
 router.get('/single_choice/questions/:id', '#controllers/app/single_choice_questions_controller.show').use(middleware.auth())
 
 

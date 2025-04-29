@@ -24,8 +24,8 @@ export default class Topic extends BaseModel {
   @belongsTo(() => Chapter)
   declare chapter: BelongsTo<typeof Chapter>
 
-  @hasMany(() => Practice)
-  declare practices: HasMany<typeof Practice>
+  @hasOne(() => Practice)
+  declare practice: HasOne<typeof Practice>
 
   @hasOne(() => Lesson)
   declare lesson: HasOne<typeof Lesson>
